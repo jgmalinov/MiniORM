@@ -52,6 +52,11 @@ namespace MiniORM
             return isModified;
         }
 
+        private static IEnumerable<object> GetPrimaryKeyValues(IEnumerable<System.Reflection.PropertyInfo> primaryKeys, T entity)
+        {
+            return primaryKeys.Select(pi => pi.GetValue(entity));
+        }
+
         private static List<T> CloneEntities(IEnumerable<T> entities)
         {
             var clonedEntities = new List<T>();
