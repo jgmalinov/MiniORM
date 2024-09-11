@@ -41,5 +41,18 @@
             }
             return removedSuccessfully;
         }
+
+        public IEnumerator<TEntity> GetEnumerator() => Entities.GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
+        
+        public void RemoveRange(IEnumerable<TEntity> entities)
+        {
+            foreach(var entity in entities.ToArray())
+            {
+                Remove(entity);
+            }
+        }
+
+
     }
 }
