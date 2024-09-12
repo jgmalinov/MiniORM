@@ -47,6 +47,36 @@ namespace MiniORM
                 }
             }
 
+            using (new ConnectionManager(_connection))
+            {
+                using (var transaction = _connection.StartTransaction())
+                {
+                    foreach(IEnumerable dbSet in dbSets)
+                    {
+                        var persistMethod = typeof(DbContext)
+                            .GetMethod("Persist", BindingFlags.NonPublic | BindingFlags.Instance)
+                            .MakeGenericMethod(dbSet.GetType());
+                        try
+                        {
+                            try
+                            {
+                                persistMethod.Invoke(this, new object[] { dbSet });
+                            }
+                            catch (TargetInvocationException e) when (e.InnerException is not null)
+                            {
+                                throw e.InnerException;
+                            }
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Rollback!!!");
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                    transaction.Commit();
+                }
+            }
             
         }
     }
